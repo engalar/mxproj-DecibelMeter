@@ -34,12 +34,63 @@ export class Game {
             stage.height(window.innerHeight);
             stage.batchDraw();
         });
+
+        // 监听键盘按下事件
+        document.addEventListener("keydown", (e) => {
+            if (e.key === " ") {
+                debugger;
+                if (this.gameOver) {
+                    debugger;
+                    this.restart();
+                } else {
+                    this.shoot();
+                }
+            }
+        });
+
+        // 开始游戏循环
+        this.update();
     }
+
+    // 添加敌机
     addEnemy() {
-        const x = Math.random() * (window.innerWidth - 50);
-        const y = -50;
-        const enemy = new Enemy(x, y, this.layer);
+        const enemy = new Enemy(
+            Math.random() * window.innerWidth,
+            -50,
+            this.layer,
+        );
         this.enemies.push(enemy);
+    }
+
+    // 检测碰撞
+    checkCollision() {
+        this.enemies.forEach((enemy) => {
+            this.bullets.forEach((bullet) => {
+                if (enemy.isCollidingWith(bullet)) {
+                    debugger;
+                    enemy.destroy();
+                    bullet.destroy();
+                    this.score++;
+                }
+            });
+            if (enemy.isCollidingWith(this.plane)) {
+                this.gameOver = true;
+                // log
+                console.log(this.score, "分数");
+                debugger;
+            }
+        });
+    }
+
+    // 重启游戏
+    restart() {
+        this.gameOver = false;
+        this.score = 0;
+        this.enemies.forEach((enemy) => enemy.destroy());
+        this.bullets.forEach((bullet) => bullet.destroy());
+        this.enemies = [];
+        this.bullets = [];
+        this.addEnemy();
     }
     moveEnemies() {
         for (let i = 0; i < this.enemies.length; i++) {
@@ -71,36 +122,18 @@ export class Game {
             }
         }
     }
-    checkCollision() {
-        for (let i = 0; i < this.bullets.length; i++) {
-            const bullet = this.bullets[i];
-            for (let j = 0; j < this.enemies.length; j++) {
-                const enemy = this.enemies[j];
-                if (
-                    bullet.x + bullet.width > enemy.x &&
-                    bullet.x < enemy.x + enemy.width &&
-                    bullet.y + bullet.height > enemy.y &&
-                    bullet.y < enemy.y + enemy.height
-                ) {
-                    this.bullets.splice(i, 1);
-                    this.layer.remove(bullet.shape);
-                    this.layer.draw();
-                    this.enemies.splice(j, 1);
-                    this.layer.remove(enemy.shape);
-                    this.layer.draw();
-                    this.score += 10;
-                    break;
-                }
-            }
-        }
-    }
     update() {
-        if (!this.gameOver) {
-            this.addEnemy();
+        let h: number;
+        const doUpdate = () => {
             this.moveEnemies();
             this.moveBullets();
             this.checkCollision();
-            requestAnimationFrame(() => this.update());
-        }
+        };
+        setInterval(() => {
+            if (!this.gameOver) {
+                cancelAnimationFrame(h);
+                h = requestAnimationFrame(() => doUpdate());
+            }
+        }, 1000 / 60);
     }
 }

@@ -16,8 +16,11 @@ export class Star {
         });
         layer.add(this.star);
     }
-    move() {
-        this.y += 1; // 星星向下移动
+    destroy() {
+        this.star.destroy();
+    }
+    move(elapsedTime: any) {
+        this.y += (53 * elapsedTime) / 1000; // 星星向下移动
         this.star.y(this.y);
         if (this.y > window.innerHeight) {
             this.y = -this.radius;

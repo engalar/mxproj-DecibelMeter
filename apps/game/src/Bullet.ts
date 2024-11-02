@@ -1,19 +1,18 @@
 import Konva from "konva";
-export class Bullet {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    shape: Konva.Rect | undefined;
-    constructor(
-        x: number,
-        y: number,
-        private layer: Konva.Layer,
-    ) {
-        this.x = x;
-        this.y = y;
-        this.width = 10;
-        this.height = 10;
+import { BaseObject } from "./BaseObject";
+export class Bullet extends BaseObject {
+    destroy() {
+        this.shape?.destroy();
+        this.shape = undefined;
+    }
+    isOutOfScreen() {
+        if (this.y < 0) {
+            return true;
+        }
+        return false;
+    }
+    constructor(x: number, y: number, layer: Konva.Layer) {
+        super(x, y, 10, 10, layer);
         this.shape = new Konva.Rect({
             x: this.x,
             y: this.y,

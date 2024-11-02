@@ -1,20 +1,9 @@
 import Konva from "konva";
-export class Plane {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+import { BaseObject } from "./BaseObject";
+export class Plane extends BaseObject {
     image: HTMLImageElement;
-    shape: Konva.Image | undefined;
-    constructor(
-        x: number,
-        y: number,
-        private layer: Konva.Layer,
-    ) {
-        this.x = x;
-        this.y = y;
-        this.width = 50;
-        this.height = 50;
+    constructor(x: number, y: number, layer: Konva.Layer) {
+        super(x, y, 50, 50, layer);
         this.image = new Image();
         this.image.src = "img/plane.png";
         this.image.onload = () => {

@@ -6,7 +6,6 @@ function App() {
     const containerRef = useRef(null);
     useEffect(() => {
         const game = new Game(containerRef.current!);
-        game.update();
     }, []);
     return <div ref={containerRef}></div>;
 }
