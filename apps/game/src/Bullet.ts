@@ -4,6 +4,7 @@ export class Bullet extends BaseObject {
     destroy() {
         this.shape?.destroy();
         this.shape = undefined;
+        console.log("子弹销毁");
     }
     isOutOfScreen() {
         if (this.y < 0) {
@@ -21,10 +22,9 @@ export class Bullet extends BaseObject {
             fill: "red",
         });
         layer.add(this.shape);
-        layer.draw();
     }
-    move() {
-        this.y -= 10;
+    move(deltaTime: number) {
+        this.y -= (150 * deltaTime) / 1000;
         this.shape?.y(this.y);
         this.layer.draw();
     }

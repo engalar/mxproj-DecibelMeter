@@ -3,10 +3,22 @@ import { Star } from "./Star";
 
 export class SkyBackground {
     stars: Star[] = [];
+    ih: number = 0;
+    h: number = 0;
     constructor(private layer: Konva.Layer) {
+        this.handleResize = this.handleResize.bind(this);
         this.handleResize();
         this.animate();
         window.addEventListener("resize", this.handleResize);
+    }
+    destroy() {
+        window.removeEventListener("resize", this.handleResize);
+        this.stars.forEach((star) => {
+            star.destroy();
+        });
+        this.stars = [];
+        clearInterval(this.ih);
+        cancelAnimationFrame(this.h);
     }
     handleResize = () => {
         this.stars.forEach((star) => {
@@ -23,18 +35,16 @@ export class SkyBackground {
         }
     };
     animate() {
-        const doAnimate = (elapsedTime: number) => {
-            this.layer.batchDraw();
-            this.stars.forEach((star) => star.move(elapsedTime));
-        };
-        let h: number;
         let lastTime = 0;
-        setInterval(() => {
-            cancelAnimationFrame(h);
-            const now = performance.now();
-            const elapsedTime = now - lastTime;
-            lastTime = now;
-            h = requestAnimationFrame(() => doAnimate(elapsedTime));
+        const that = this;
+        const doAnimate = (time: number) => {
+            const elapsedTime = time - lastTime;
+            lastTime = time;
+            that.stars.forEach((star) => star.move(elapsedTime));
+        };
+        this.ih = setInterval(() => {
+            cancelAnimationFrame(that.h);
+            that.h = requestAnimationFrame((time) => doAnimate(time));
         }, 1000 / 60);
     }
 }

@@ -30,8 +30,8 @@ export class Enemy extends BaseObject {
             layer.draw();
         };
     }
-    move() {
-        this.y += 5;
+    move(deltaTime: number) {
+        this.y += (26 * deltaTime) / 1000;
         this.shape?.y(this.y);
         this.layer.draw();
     }

@@ -11,13 +11,19 @@ export class Game {
     bullets: Bullet[];
     score: number;
     gameOver: boolean;
+    bgLayer: Konva.Layer;
+    stage: Konva.Stage;
+    bg: SkyBackground;
     constructor(container: HTMLDivElement) {
         const stage = new Konva.Stage({
             width: window.innerWidth,
             height: window.innerHeight,
             container,
         });
+        this.stage = stage;
         this.layer = new Konva.Layer();
+        this.bgLayer = new Konva.Layer();
+        stage.add(this.bgLayer);
         stage.add(this.layer);
 
         this.plane = new Plane(100, 100, this.layer);
@@ -26,30 +32,28 @@ export class Game {
         this.score = 0;
         this.gameOver = false;
 
-        new SkyBackground(this.layer);
+        this.bg = new SkyBackground(this.bgLayer);
 
-        // 监听窗口大小变化
-        window.addEventListener("resize", () => {
-            stage.width(window.innerWidth);
-            stage.height(window.innerHeight);
-            stage.batchDraw();
-        });
+        this.onResize = this.onResize.bind(this);
+        this.shoot = this.shoot.bind(this);
 
-        // 监听键盘按下事件
-        document.addEventListener("keydown", (e) => {
-            if (e.key === " ") {
-                debugger;
-                if (this.gameOver) {
-                    debugger;
-                    this.restart();
-                } else {
-                    this.shoot();
-                }
-            }
-        });
+        window.addEventListener("resize", this.onResize);
+        window.addEventListener("click", this.shoot);
 
         // 开始游戏循环
         this.update();
+    }
+
+    destroy() {
+        this.stage.destroy();
+        this.bg.destroy();
+        window.removeEventListener("resize", this.shoot);
+        window.removeEventListener("click", this.shoot);
+    }
+    onResize() {
+        this.stage.width(window.innerWidth);
+        this.stage.height(window.innerHeight);
+        this.stage.batchDraw();
     }
 
     // 添加敌机
@@ -92,10 +96,10 @@ export class Game {
         this.bullets = [];
         this.addEnemy();
     }
-    moveEnemies() {
+    moveEnemies(deltaTime: number) {
         for (let i = 0; i < this.enemies.length; i++) {
             const enemy = this.enemies[i];
-            enemy.move();
+            enemy.move(deltaTime);
             if (enemy.y > window.innerHeight) {
                 this.enemies.splice(i, 1);
                 this.layer.remove(enemy.shape);
@@ -111,29 +115,33 @@ export class Game {
         );
         this.bullets.push(bullet);
     }
-    moveBullets() {
+    moveBullets(deltaTime: number) {
         for (let i = 0; i < this.bullets.length; i++) {
             const bullet = this.bullets[i];
-            bullet.move();
+            bullet.move(deltaTime);
             if (bullet.y < 0) {
                 this.bullets.splice(i, 1);
-                this.layer.remove(bullet.shape);
-                this.layer.draw();
+                bullet.destroy();
             }
         }
     }
     update() {
-        let h: number;
-        const doUpdate = () => {
-            this.moveEnemies();
-            this.moveBullets();
-            this.checkCollision();
-        };
         setInterval(() => {
             if (!this.gameOver) {
-                cancelAnimationFrame(h);
-                h = requestAnimationFrame(() => doUpdate());
+                cancelAnimationFrame(this.h);
+                this.h = requestAnimationFrame((time) =>
+                    this.doUpdate.call(this, time),
+                );
             }
         }, 1000 / 60);
+    }
+    h: number = 0;
+    lastTime = 0;
+    doUpdate(time: number) {
+        const deltaTime = time - this.lastTime;
+        this.lastTime = time;
+        this.moveEnemies(deltaTime);
+        this.moveBullets(deltaTime);
+        this.checkCollision();
     }
 }

@@ -6,6 +6,9 @@ function App() {
     const containerRef = useRef(null);
     useEffect(() => {
         const game = new Game(containerRef.current!);
+        return () => {
+            game.destroy();
+        };
     }, []);
     return <div ref={containerRef}></div>;
 }
