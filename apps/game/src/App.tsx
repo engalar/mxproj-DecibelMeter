@@ -10,7 +10,7 @@ function App() {
             game.destroy();
         };
     }, []);
-    return <div ref={containerRef}></div>;
+    return <div className="App" ref={containerRef}></div>;
 }
 
 export default App;

@@ -1,7 +1,8 @@
 import Konva from "konva";
 import { Star } from "./Star";
+import { ILayout } from "./ILayout";
 
-export class SkyBackground {
+export class SkyBackground implements ILayout {
     stars: Star[] = [];
     ih: number = 0;
     h: number = 0;
@@ -10,6 +11,18 @@ export class SkyBackground {
         this.handleResize();
         this.animate();
         window.addEventListener("resize", this.handleResize);
+    }
+    onLayout(width: number, height: number): void {
+        this.stars.forEach((star) => {
+            star.destroy();
+        });
+        this.stars = [];
+        for (let i = 0; i < 100; i++) {
+            const x = Math.random() * width;
+            const y = Math.random() * height;
+            const radius = Math.random() * 2;
+            this.stars.push(new Star(x, y, radius, this.layer));
+        }
     }
     destroy() {
         window.removeEventListener("resize", this.handleResize);

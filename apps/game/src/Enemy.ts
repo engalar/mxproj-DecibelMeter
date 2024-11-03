@@ -3,6 +3,7 @@ import { BaseObject } from "./BaseObject";
 
 export class Enemy extends BaseObject {
     destroy() {
+        //TODO: play explosion sound and image
         this.shape?.destroy();
         this.shape = undefined;
     }
@@ -31,6 +32,7 @@ export class Enemy extends BaseObject {
         };
     }
     move(deltaTime: number) {
+        //TODO: x movement
         this.y += (26 * deltaTime) / 1000;
         this.shape?.y(this.y);
         this.layer.draw();

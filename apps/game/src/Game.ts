@@ -14,10 +14,10 @@ export class Game {
     bgLayer: Konva.Layer;
     stage: Konva.Stage;
     bg: SkyBackground;
-    constructor(container: HTMLDivElement) {
+    constructor(private container: HTMLDivElement) {
         const stage = new Konva.Stage({
-            width: window.innerWidth,
-            height: window.innerHeight,
+            width: container.clientWidth,
+            height: container.clientHeight,
             container,
         });
         this.stage = stage;
@@ -41,14 +41,16 @@ export class Game {
         this.onResize = this.onResize.bind(this);
         this.shoot = this.shoot.bind(this);
 
+        this.onResize();
         window.addEventListener("resize", this.onResize);
         window.addEventListener("click", this.shoot);
 
-        // loop 100
+        // TODO: 随机时防止重叠，并且随时增加敌机
         for (let i = 0; i < 10; i++) {
             this.addEnemy();
         }
 
+        //TODO:play music
         // 开始游戏循环
         this.update();
     }
@@ -60,9 +62,12 @@ export class Game {
         window.removeEventListener("click", this.shoot);
     }
     onResize() {
-        this.stage.width(window.innerWidth);
-        this.stage.height(window.innerHeight);
-        this.stage.batchDraw();
+        const width = this.container.clientWidth;
+        const height = this.container.clientHeight;
+        this.stage.width(width);
+        this.stage.height(height);
+        this.bg.onLayout(width, height);
+        this.plane.onLayout(width, height);
     }
 
     // 添加敌机
@@ -80,7 +85,6 @@ export class Game {
         this.enemies.forEach((enemy) => {
             this.bullets.forEach((bullet) => {
                 if (enemy.isCollidingWith(bullet)) {
-                    debugger;
                     enemy.destroy();
                     bullet.destroy();
                     this.score++;
@@ -90,7 +94,6 @@ export class Game {
                 this.gameOver = true;
                 // log
                 console.log(this.score, "分数");
-                debugger;
             }
         });
     }
@@ -123,6 +126,7 @@ export class Game {
             this.layer,
         );
         this.bullets.push(bullet);
+        //TODO: play sound
     }
     moveBullets(deltaTime: number) {
         for (let i = 0; i < this.bullets.length; i++) {
@@ -151,6 +155,7 @@ export class Game {
         this.lastTime = time;
         this.moveEnemies(deltaTime);
         this.moveBullets(deltaTime);
+        this.plane.onElapse(deltaTime);
         this.checkCollision();
     }
 }

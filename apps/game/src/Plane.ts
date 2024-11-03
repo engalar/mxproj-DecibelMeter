@@ -1,7 +1,11 @@
 import Konva from "konva";
 import { BaseObject } from "./BaseObject";
-export class Plane extends BaseObject {
+import { executer } from "./util";
+import { ILayout } from "./ILayout";
+import { IElapse } from "./IElapse";
+export class Plane extends BaseObject implements ILayout, IElapse {
     image: HTMLImageElement;
+    excuter?: (elapsedTime: number) => number;
     constructor(x: number, y: number, layer: Konva.Layer) {
         super(x, y, 50, 50, layer);
         this.image = new Image();
@@ -18,24 +22,13 @@ export class Plane extends BaseObject {
             layer.draw();
         };
     }
-    moveLeft() {
-        this.x -= 10;
-        this.shape?.x(this.x);
-        this.layer.draw();
+    onElapse(elapse: number): void {
+        if (this.excuter) {
+            const newX = this.excuter(elapse);
+            this.shape?.x(newX);
+        }
     }
-    moveRight() {
-        this.x += 10;
-        this.shape?.x(this.x);
-        this.layer.draw();
-    }
-    moveUp() {
-        this.y -= 10;
-        this.shape?.y(this.y);
-        this.layer.draw();
-    }
-    moveDown() {
-        this.y += 10;
-        this.shape?.y(this.y);
-        this.layer.draw();
+    onLayout(width: number, _height: number): void {
+        this.excuter = executer(0 + 50, width - 50 * 2, 2000, width / 2);
     }
 }
