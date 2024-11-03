@@ -1,50 +1,28 @@
-# React + TypeScript + Vite
+# Decibel Meter App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+应用分为客户侧与后台看板两部分
 
-Currently, two official plugins are available:
+## Client
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 玩法
 
-## Expanding the ESLint configuration
+玩家控制飞船发射导弹击毁入侵者，每击毁一架获得一分。但请注意不要撞到入侵者的飞船，否则游戏结束。
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### 说明
 
-- Configure the top-level `parserOptions` property like this:
+流开始后入侵者的飞船会随机出现在顶部，然后缓慢从上而下的移动。背景还有星星从上而下的快速移动，造成玩家和入侵者的飞船极速向上移动的错觉，期间星星还会闪烁。
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Dashboard
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### 准备
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+在准备界面显示一个大的准备按钮，点击后切换为开始按钮，期间玩家可以加入进队列，并显示在下方。
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+### 排行榜
+
+在点击开始按钮后，进入到排行榜页面。在此显示实时的玩家排名，以列表的形式展示，当有排名变化后以动画的形式变换上下位置，形成紧张的追逐氛围。列表中的每个条目分为左右两个元素，左边为分数在时间上的拆线图，右边为玩家图像和实时得分。
+当游戏时间到后结束游戏，并显示颁奖按钮。
+
+### 颁奖
+
+点击颁奖按钮后显示颁奖页面，显示前三名得分玩家。

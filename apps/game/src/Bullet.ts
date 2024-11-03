@@ -13,7 +13,7 @@ export class Bullet extends BaseObject {
         return false;
     }
     constructor(x: number, y: number, layer: Konva.Layer) {
-        super(x, y, 10, 10, layer);
+        super(x, y, 5, 8, layer);
         this.shape = new Konva.Rect({
             x: this.x,
             y: this.y,
@@ -24,7 +24,7 @@ export class Bullet extends BaseObject {
         layer.add(this.shape);
     }
     move(deltaTime: number) {
-        this.y -= (150 * deltaTime) / 1000;
+        this.y -= (350 * deltaTime) / 1000;
         this.shape?.y(this.y);
         this.layer.draw();
     }

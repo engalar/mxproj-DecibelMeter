@@ -26,7 +26,11 @@ export class Game {
         stage.add(this.bgLayer);
         stage.add(this.layer);
 
-        this.plane = new Plane(100, 100, this.layer);
+        this.plane = new Plane(
+            window.innerWidth / 2,
+            window.innerHeight - 100,
+            this.layer,
+        );
         this.enemies = [];
         this.bullets = [];
         this.score = 0;
@@ -39,6 +43,11 @@ export class Game {
 
         window.addEventListener("resize", this.onResize);
         window.addEventListener("click", this.shoot);
+
+        // loop 100
+        for (let i = 0; i < 10; i++) {
+            this.addEnemy();
+        }
 
         // 开始游戏循环
         this.update();
