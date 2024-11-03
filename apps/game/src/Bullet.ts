@@ -6,7 +6,6 @@ export class Bullet extends BaseObject {
     destroy() {
         this.shape?.destroy();
         this.shape = undefined;
-        console.log("子弹销毁");
     }
     isOutOfScreen() {
         if (this.y < 0) {

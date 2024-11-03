@@ -8,7 +8,6 @@ const image2 = new Image();
 image2.src = "img/boom.png";
 export class Enemy extends BaseObject {
     destroy() {
-        //TODO: play explosion sound and image
         this.shape?.destroy();
         this.shape = undefined;
         const shape = new Konva.Image({
@@ -28,12 +27,6 @@ export class Enemy extends BaseObject {
         sound.currentTime = 0.7;
         sound.play();
     }
-    isOutOfScreen() {
-        if (this.y > window.innerHeight) {
-            return true;
-        }
-        return false;
-    }
     constructor(x: number, y: number, layer: Konva.Layer) {
         super(x, y, 50, 50, layer);
 
@@ -45,6 +38,7 @@ export class Enemy extends BaseObject {
             height: this.height,
         });
         layer.add(this.shape);
+        layer.draw();
     }
     move(deltaTime: number) {
         //TODO: x movement

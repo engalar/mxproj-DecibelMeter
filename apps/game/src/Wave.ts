@@ -41,7 +41,7 @@ export class Wave extends BaseObject implements ILayout, IElapse {
                         values += array[i];
                     }
                     this.lastVolume = values / length;
-                    if (this.lastVolume > 3.1) {
+                    if (this.lastVolume > 28) {
                         cb();
                     }
                 };

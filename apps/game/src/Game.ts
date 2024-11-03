@@ -30,6 +30,8 @@ export class Game {
     stage: Konva.Stage;
     bg: SkyBackground;
     wave: Wave;
+    clientWidth: number = 0;
+    clientHeight: number = 0;
     constructor(private container: HTMLDivElement) {
         const stage = new Konva.Stage({
             width: container.clientWidth,
@@ -53,7 +55,7 @@ export class Game {
         this.gameOver = false;
 
         this.onResize = this.onResize.bind(this);
-        this.shoot = throttle(this.shoot.bind(this), 500);
+        this.shoot = throttle(this.shoot.bind(this), 300);
 
         this.bg = new SkyBackground(this.bgLayer);
         this.wave = new Wave(0, 0, this.layer, this.shoot);
@@ -61,11 +63,6 @@ export class Game {
         this.onResize();
         window.addEventListener("resize", this.onResize);
         window.addEventListener("click", this.shoot);
-
-        // TODO: 随机时防止重叠，并且随时增加敌机
-        for (let i = 0; i < 10; i++) {
-            this.addEnemy();
-        }
 
         //TODO:play music
         // 开始游戏循环
@@ -79,19 +76,20 @@ export class Game {
         window.removeEventListener("click", this.shoot);
     }
     onResize() {
-        const width = this.container.clientWidth;
-        const height = this.container.clientHeight;
-        this.stage.width(width);
-        this.stage.height(height);
-        this.bg.onLayout(width, height);
-        this.plane.onLayout(width, height);
-        this.wave.onLayout(width, height);
+        this.clientWidth = this.container.clientWidth;
+        this.clientHeight = this.container.clientHeight;
+
+        this.stage.width(this.clientWidth);
+        this.stage.height(this.clientHeight);
+        this.bg.onLayout(this.clientWidth, this.clientHeight);
+        this.plane.onLayout(this.clientWidth, this.clientHeight);
+        this.wave.onLayout(this.clientWidth, this.clientHeight);
     }
 
     // 添加敌机
     addEnemy() {
         const enemy = new Enemy(
-            Math.random() * window.innerWidth,
+            30 + Math.random() * (this.clientWidth - 30 - 30) - 20, // 20 left same as plane do
             -50,
             this.layer,
         );
@@ -100,6 +98,7 @@ export class Game {
 
     // 检测碰撞
     checkCollision() {
+        this.enemies = this.enemies.filter((enemy) => enemy.shape);
         this.enemies.forEach((enemy) => {
             this.bullets.forEach((bullet) => {
                 if (enemy.isCollidingWith(bullet)) {
@@ -166,9 +165,17 @@ export class Game {
     }
     h: number = 0;
     lastTime = 0;
+    sumTime = 0;
     doUpdate(time: number) {
         const deltaTime = time - this.lastTime;
         this.lastTime = time;
+
+        // random enemy
+        if (Math.random() > 0.33 && (this.sumTime += deltaTime) > 1000) {
+            this.sumTime = 0;
+            this.addEnemy();
+        }
+
         this.moveEnemies(deltaTime);
         this.moveBullets(deltaTime);
         this.plane.onElapse(deltaTime);
