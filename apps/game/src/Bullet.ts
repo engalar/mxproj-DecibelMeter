@@ -1,5 +1,7 @@
 import Konva from "konva";
 import { BaseObject } from "./BaseObject";
+// load ./audio/shoot.mp3
+const shootSound = new Audio("audio/shoot.mp3");
 export class Bullet extends BaseObject {
     destroy() {
         this.shape?.destroy();
@@ -22,10 +24,12 @@ export class Bullet extends BaseObject {
             fill: "red",
         });
         layer.add(this.shape);
+
+        shootSound.currentTime = 0;
+        shootSound.play();
     }
     move(deltaTime: number) {
         this.y -= (350 * deltaTime) / 1000;
         this.shape?.y(this.y);
-        this.layer.draw();
     }
 }

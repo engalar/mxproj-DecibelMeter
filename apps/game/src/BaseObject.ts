@@ -4,7 +4,7 @@ export class BaseObject {
     y: number;
     width: number;
     height: number;
-    layer: Konva.Layer;
+    protected layer: Konva.Layer;
 
     shape: Konva.Shape | undefined;
     constructor(

@@ -3,7 +3,22 @@ import { Bullet } from "./Bullet";
 import { Enemy } from "./Enemy";
 import { Plane } from "./Plane";
 import { SkyBackground } from "./SkyBackground";
+import { Wave } from "./Wave";
+function throttle<T extends (...args: any[]) => any>(
+    func: T,
+    delay: number,
+): (...args: Parameters<T>) => void {
+    let lastTime = 0;
 
+    return function (...args: Parameters<T>): void {
+        const currentTime = Date.now();
+        if (currentTime - lastTime >= delay) {
+            lastTime = currentTime;
+            //@ts-ignore
+            func.apply(this, args);
+        }
+    };
+}
 export class Game {
     layer: any;
     plane: Plane;
@@ -14,6 +29,7 @@ export class Game {
     bgLayer: Konva.Layer;
     stage: Konva.Stage;
     bg: SkyBackground;
+    wave: Wave;
     constructor(private container: HTMLDivElement) {
         const stage = new Konva.Stage({
             width: container.clientWidth,
@@ -28,7 +44,7 @@ export class Game {
 
         this.plane = new Plane(
             window.innerWidth / 2,
-            window.innerHeight - 100,
+            window.innerHeight,
             this.layer,
         );
         this.enemies = [];
@@ -36,10 +52,11 @@ export class Game {
         this.score = 0;
         this.gameOver = false;
 
-        this.bg = new SkyBackground(this.bgLayer);
-
         this.onResize = this.onResize.bind(this);
-        this.shoot = this.shoot.bind(this);
+        this.shoot = throttle(this.shoot.bind(this), 500);
+
+        this.bg = new SkyBackground(this.bgLayer);
+        this.wave = new Wave(0, 0, this.layer, this.shoot);
 
         this.onResize();
         window.addEventListener("resize", this.onResize);
@@ -68,6 +85,7 @@ export class Game {
         this.stage.height(height);
         this.bg.onLayout(width, height);
         this.plane.onLayout(width, height);
+        this.wave.onLayout(width, height);
     }
 
     // 添加敌机
@@ -115,18 +133,16 @@ export class Game {
             if (enemy.y > window.innerHeight) {
                 this.enemies.splice(i, 1);
                 this.layer.remove(enemy.shape);
-                this.layer.draw();
             }
         }
     }
     shoot() {
         const bullet = new Bullet(
-            this.plane.x + this.plane.width / 2 - 5,
-            this.plane.y - 10,
+            this.plane.shape!.x() + this.plane.width / 2,
+            this.plane.shape!.y() - 10,
             this.layer,
         );
         this.bullets.push(bullet);
-        //TODO: play sound
     }
     moveBullets(deltaTime: number) {
         for (let i = 0; i < this.bullets.length; i++) {
@@ -156,6 +172,7 @@ export class Game {
         this.moveEnemies(deltaTime);
         this.moveBullets(deltaTime);
         this.plane.onElapse(deltaTime);
+        this.wave.onElapse(deltaTime);
         this.checkCollision();
     }
 }

@@ -9,6 +9,7 @@ export class SkyBackground implements ILayout {
     constructor(private layer: Konva.Layer) {
         this.handleResize = this.handleResize.bind(this);
         this.handleResize();
+        //TODO: reuse IElaspe
         this.animate();
         window.addEventListener("resize", this.handleResize);
     }

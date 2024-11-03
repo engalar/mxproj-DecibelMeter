@@ -3,24 +3,12 @@ import { BaseObject } from "./BaseObject";
 import { executer } from "./util";
 import { ILayout } from "./ILayout";
 import { IElapse } from "./IElapse";
+const image = new Image();
+image.src = "img/plane.png";
 export class Plane extends BaseObject implements ILayout, IElapse {
-    image: HTMLImageElement;
     excuter?: (elapsedTime: number) => number;
     constructor(x: number, y: number, layer: Konva.Layer) {
-        super(x, y, 50, 50, layer);
-        this.image = new Image();
-        this.image.src = "img/plane.png";
-        this.image.onload = () => {
-            this.shape = new Konva.Image({
-                x: this.x,
-                y: this.y,
-                image: this.image,
-                width: this.width,
-                height: this.height,
-            });
-            layer.add(this.shape);
-            layer.draw();
-        };
+        super(x, y, 25, 35, layer);
     }
     onElapse(elapse: number): void {
         if (this.excuter) {
@@ -28,7 +16,20 @@ export class Plane extends BaseObject implements ILayout, IElapse {
             this.shape?.x(newX);
         }
     }
-    onLayout(width: number, _height: number): void {
-        this.excuter = executer(0 + 50, width - 50 * 2, 2000, width / 2);
+    onLayout(width: number, height: number): void {
+        if (!this.shape) {
+            this.shape = new Konva.Image({
+                x: width / 2 - this.width / 2,
+                y: height - this.height - 30,
+                image,
+                width: this.width,
+                height: this.height,
+            });
+            this.layer.add(this.shape);
+        } else {
+            this.shape.x(width / 2 - this.width / 2);
+            this.shape.y(height - this.height - 50);
+        }
+        this.excuter = executer(0, width - 20, 3000, width / 2);
     }
 }
