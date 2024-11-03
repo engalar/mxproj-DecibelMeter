@@ -173,6 +173,7 @@ export class Game {
         this.moveBullets(deltaTime);
         this.plane.onElapse(deltaTime);
         this.wave.onElapse(deltaTime);
+        this.bg.onElapse(deltaTime);
         this.checkCollision();
     }
 }

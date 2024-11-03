@@ -1,17 +1,19 @@
 import Konva from "konva";
 import { Star } from "./Star";
 import { ILayout } from "./ILayout";
+import { IElapse } from "./IElapse";
 
-export class SkyBackground implements ILayout {
+export class SkyBackground implements ILayout, IElapse {
     stars: Star[] = [];
     ih: number = 0;
     h: number = 0;
     constructor(private layer: Konva.Layer) {
         this.handleResize = this.handleResize.bind(this);
         this.handleResize();
-        //TODO: reuse IElaspe
-        this.animate();
         window.addEventListener("resize", this.handleResize);
+    }
+    onElapse(elapse: number): void {
+        this.stars.forEach((star) => star.move(elapse));
     }
     onLayout(width: number, height: number): void {
         this.stars.forEach((star) => {
@@ -48,17 +50,4 @@ export class SkyBackground implements ILayout {
             this.stars.push(new Star(x, y, radius, this.layer));
         }
     };
-    animate() {
-        let lastTime = 0;
-        const that = this;
-        const doAnimate = (time: number) => {
-            const elapsedTime = time - lastTime;
-            lastTime = time;
-            that.stars.forEach((star) => star.move(elapsedTime));
-        };
-        this.ih = setInterval(() => {
-            cancelAnimationFrame(that.h);
-            that.h = requestAnimationFrame((time) => doAnimate(time));
-        }, 1000 / 60);
-    }
 }
