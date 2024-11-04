@@ -33,7 +33,7 @@ export class Game {
     enemies: Enemy[];
     bullets: Bullet[];
     score: number;
-    gameOver: boolean;
+    gameOver: boolean = true;
     bgLayer: Konva.Layer;
     stage: Konva.Stage;
     bg: SkyBackground;
@@ -69,7 +69,6 @@ export class Game {
         this.enemies = [];
         this.bullets = [];
         this.score = 0;
-        this.gameOver = false;
 
         this.onResize = this.onResize.bind(this);
         this.shoot = throttle(this.shoot.bind(this), 300);
@@ -186,6 +185,7 @@ export class Game {
         }
     }
     shoot() {
+        if (this.gameOver) return;
         const bullet = new Bullet(
             this.plane.shape!.x() + this.plane.width / 2,
             this.plane.shape!.y() - 10,
@@ -204,7 +204,9 @@ export class Game {
         }
     }
     update() {
+        this.gameOver = false;
         bgSound.play();
+        this._animateWelcome();
         let deltaTime = 0,
             lastTime = 0;
         const h = timer((elapse) => {
@@ -228,6 +230,96 @@ export class Game {
                 this.wave.onElapse(deltaTime);
                 this.bg.onElapse(deltaTime);
                 this.checkCollision();
+            }
+        });
+    }
+    private _animateWelcome() {
+        const duration = 500;
+
+        // 动画生成函数，用于多个属性
+        const animateProperties = (
+            target: any,
+            properties: {
+                startValue: number;
+                endValue: number;
+                setter: (value: number) => void;
+            }[],
+        ) => {
+            return properties.map(({ startValue, endValue, setter }) => {
+                const interpolator = interpolateNumber(startValue, endValue);
+                return (t: number) => setter(interpolator(t));
+            });
+        };
+
+        // 动态计算目标 x 坐标的居中位置
+        const computeCenteredX = (targetWidth: number) =>
+            (this.clientWidth - targetWidth) / 2;
+
+        // 为 this.button 创建动画，包含 x 居中
+        const buttonTargetWidth = this.clientWidth * 0.3;
+        const buttonTargetHeight = 25;
+        const buttonTargetY = buttonTargetHeight / 2;
+        const buttonAnimations = animateProperties(this.button, [
+            {
+                startValue: this.button.x(),
+                endValue: computeCenteredX(buttonTargetWidth),
+                setter: this.button.x.bind(this.button),
+            },
+            {
+                startValue: this.button.y(),
+                endValue: buttonTargetY,
+                setter: this.button.y.bind(this.button),
+            },
+            {
+                startValue: this.button.width(),
+                endValue: buttonTargetWidth,
+                setter: this.button.width.bind(this.button),
+            },
+            {
+                startValue: this.button.height(),
+                endValue: buttonTargetHeight,
+                setter: this.button.height.bind(this.button),
+            },
+        ]);
+
+        // 为 this.buttonText 创建动画，包含 x 居中
+        const buttonTextTargetWidth = this.clientWidth * 0.3;
+        const buttonTextTargetHeight = 25;
+        const buttonTextTargetY = buttonTextTargetHeight / 2;
+        const buttonTextAnimations = animateProperties(this.buttonText, [
+            {
+                startValue: this.buttonText.x(),
+                endValue: computeCenteredX(buttonTextTargetWidth),
+                setter: this.buttonText.x.bind(this.buttonText),
+            },
+            {
+                startValue: this.buttonText.y(),
+                endValue: buttonTextTargetY,
+                setter: this.buttonText.y.bind(this.buttonText),
+            },
+            {
+                startValue: this.buttonText.width(),
+                endValue: buttonTextTargetWidth,
+                setter: this.buttonText.width.bind(this.buttonText),
+            },
+            {
+                startValue: this.buttonText.height(),
+                endValue: buttonTextTargetHeight,
+                setter: this.buttonText.height.bind(this.buttonText),
+            },
+        ]);
+
+        // 合并所有动画
+        const allAnimations = [...buttonAnimations, ...buttonTextAnimations];
+
+        const animationTimer = timer((elapsed) => {
+            const t = Math.min(1, elapsed / duration);
+
+            // 执行所有属性动画
+            allAnimations.forEach((animate) => animate(t));
+
+            if (t >= 1) {
+                animationTimer.stop();
             }
         });
     }
