@@ -2,6 +2,7 @@ import Konva from "konva";
 import { BaseObject } from "./BaseObject";
 
 const sound = new Audio("audio/bullet.mp3");
+sound.volume = 0.1;
 const image1 = new Image();
 image1.src = "img/enemy.png";
 const image2 = new Image();

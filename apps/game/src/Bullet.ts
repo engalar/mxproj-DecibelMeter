@@ -2,6 +2,7 @@ import Konva from "konva";
 import { BaseObject } from "./BaseObject";
 // load ./audio/shoot.mp3
 const shootSound = new Audio("audio/shoot.mp3");
+shootSound.volume = 0.1;
 export class Bullet extends BaseObject {
     destroy() {
         this.shape?.destroy();
