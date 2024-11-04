@@ -4,6 +4,11 @@ import { Enemy } from "./Enemy";
 import { Plane } from "./Plane";
 import { SkyBackground } from "./SkyBackground";
 import { Wave } from "./Wave";
+
+const bgSound = new Audio("audio/bg.mp3");
+bgSound.autoplay = true;
+bgSound.loop = true;
+
 function throttle<T extends (...args: any[]) => any>(
     func: T,
     delay: number,
@@ -64,9 +69,47 @@ export class Game {
         window.addEventListener("resize", this.onResize);
         window.addEventListener("click", this.shoot);
 
-        //TODO:play music
-        // 开始游戏循环
-        this.update();
+        this.renderWelcome();
+    }
+    renderWelcome() {
+        const width = this.layer.width();
+        const height = this.layer.height();
+        // 创建按钮
+        var button = new Konva.Rect({
+            x: width / 2 - 100,
+            y: height / 2 - 25,
+            width: 200,
+            height: 50,
+            fill: "blue",
+            stroke: "black",
+            strokeWidth: 4,
+            cornerRadius: 10,
+            draggable: false,
+        });
+        // 创建文本
+        var buttonText = new Konva.Text({
+            x: width / 2 - 50,
+            y: height / 2 - 10,
+            text: "Go make it!",
+            fontSize: 20,
+            fill: "white",
+        });
+        // 将按钮和文本添加到层中
+        this.layer.add(button);
+        this.layer.add(buttonText);
+        // 绘制层
+        this.layer.draw();
+        // 添加点击事件
+        button.on("click touchstart", () => {
+            button.destroy();
+            buttonText.destroy();
+            this.update();
+        });
+        buttonText.on("click touchstart", () => {
+            this.update();
+            buttonText.destroy();
+            button.destroy();
+        });
     }
 
     destroy() {
@@ -105,12 +148,13 @@ export class Game {
                     enemy.destroy();
                     bullet.destroy();
                     this.score++;
+                    //TODO: display score in canvas
                 }
             });
             if (enemy.isCollidingWith(this.plane)) {
                 this.gameOver = true;
-                // log
                 console.log(this.score, "分数");
+                //TODO: issue here, maybe memory or event overflow
             }
         });
     }
@@ -154,6 +198,7 @@ export class Game {
         }
     }
     update() {
+        bgSound.play();
         setInterval(() => {
             if (!this.gameOver) {
                 cancelAnimationFrame(this.h);

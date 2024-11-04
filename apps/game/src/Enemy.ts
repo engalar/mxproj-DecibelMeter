@@ -41,7 +41,6 @@ export class Enemy extends BaseObject {
         layer.draw();
     }
     move(deltaTime: number) {
-        //TODO: x movement
         this.y += (26 * deltaTime) / 1000;
         this.shape?.y(this.y);
     }
