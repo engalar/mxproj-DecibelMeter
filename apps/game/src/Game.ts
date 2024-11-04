@@ -1,9 +1,12 @@
 import Konva from "konva";
+import { interpolateNumber } from "d3-interpolate";
+import { timer } from "d3-timer";
 import { Bullet } from "./Bullet";
 import { Enemy } from "./Enemy";
 import { Plane } from "./Plane";
 import { SkyBackground } from "./SkyBackground";
 import { Wave } from "./Wave";
+import { now } from "d3";
 
 const bgSound = new Audio("audio/bg.mp3");
 bgSound.autoplay = true;
@@ -16,7 +19,7 @@ function throttle<T extends (...args: any[]) => any>(
     let lastTime = 0;
 
     return function (...args: Parameters<T>): void {
-        const currentTime = Date.now();
+        const currentTime = now();
         if (currentTime - lastTime >= delay) {
             lastTime = currentTime;
             //@ts-ignore
@@ -37,6 +40,10 @@ export class Game {
     wave: Wave;
     clientWidth: number = 0;
     clientHeight: number = 0;
+    fgLayer: Konva.Layer;
+    button: Konva.Rect;
+    buttonText: Konva.Text;
+    sumTime: number = 0;
     constructor(private container: HTMLDivElement) {
         const stage = new Konva.Stage({
             width: container.clientWidth,
@@ -46,8 +53,13 @@ export class Game {
         this.stage = stage;
         this.layer = new Konva.Layer();
         this.bgLayer = new Konva.Layer();
+        this.fgLayer = new Konva.Layer();
+        this.bgLayer.zIndex(1);
+        this.layer.zIndex(2);
+        this.fgLayer.zIndex(3);
         stage.add(this.bgLayer);
         stage.add(this.layer);
+        stage.add(this.fgLayer);
 
         this.plane = new Plane(
             window.innerWidth / 2,
@@ -69,13 +81,10 @@ export class Game {
         window.addEventListener("resize", this.onResize);
         window.addEventListener("click", this.shoot);
 
-        this.renderWelcome();
-    }
-    renderWelcome() {
         const width = this.layer.width();
         const height = this.layer.height();
         // 创建按钮
-        var button = new Konva.Rect({
+        this.button = new Konva.Rect({
             x: width / 2 - 100,
             y: height / 2 - 25,
             width: 200,
@@ -87,7 +96,7 @@ export class Game {
             draggable: false,
         });
         // 创建文本
-        var buttonText = new Konva.Text({
+        this.buttonText = new Konva.Text({
             x: width / 2 - 50,
             y: height / 2 - 10,
             text: "Go make it!",
@@ -95,20 +104,16 @@ export class Game {
             fill: "white",
         });
         // 将按钮和文本添加到层中
-        this.layer.add(button);
-        this.layer.add(buttonText);
+        this.fgLayer.add(this.button);
+        this.fgLayer.add(this.buttonText);
         // 绘制层
-        this.layer.draw();
+        this.fgLayer.draw();
         // 添加点击事件
-        button.on("click touchstart", () => {
-            button.destroy();
-            buttonText.destroy();
+        this.button.on("click touchstart", () => {
             this.update();
         });
-        buttonText.on("click touchstart", () => {
+        this.buttonText.on("click touchstart", () => {
             this.update();
-            buttonText.destroy();
-            button.destroy();
         });
     }
 
@@ -148,6 +153,7 @@ export class Game {
                     enemy.destroy();
                     bullet.destroy();
                     this.score++;
+                    this.buttonText.text(`Score: ${this.score}`);
                     //TODO: display score in canvas
                 }
             });
@@ -199,33 +205,30 @@ export class Game {
     }
     update() {
         bgSound.play();
-        setInterval(() => {
-            if (!this.gameOver) {
-                cancelAnimationFrame(this.h);
-                this.h = requestAnimationFrame((time) =>
-                    this.doUpdate.call(this, time),
-                );
+        let deltaTime = 0,
+            lastTime = 0;
+        const h = timer((elapse) => {
+            deltaTime = elapse - lastTime;
+            lastTime = elapse;
+            if (this.gameOver) {
+                h.stop();
+            } else {
+                // random enemy
+                if (
+                    Math.random() > 0.33 &&
+                    (this.sumTime += deltaTime) > 1000
+                ) {
+                    this.sumTime = 0;
+                    this.addEnemy();
+                }
+
+                this.moveEnemies(deltaTime);
+                this.moveBullets(deltaTime);
+                this.plane.onElapse(deltaTime);
+                this.wave.onElapse(deltaTime);
+                this.bg.onElapse(deltaTime);
+                this.checkCollision();
             }
-        }, 1000 / 60);
-    }
-    h: number = 0;
-    lastTime = 0;
-    sumTime = 0;
-    doUpdate(time: number) {
-        const deltaTime = time - this.lastTime;
-        this.lastTime = time;
-
-        // random enemy
-        if (Math.random() > 0.33 && (this.sumTime += deltaTime) > 1000) {
-            this.sumTime = 0;
-            this.addEnemy();
-        }
-
-        this.moveEnemies(deltaTime);
-        this.moveBullets(deltaTime);
-        this.plane.onElapse(deltaTime);
-        this.wave.onElapse(deltaTime);
-        this.bg.onElapse(deltaTime);
-        this.checkCollision();
+        });
     }
 }
