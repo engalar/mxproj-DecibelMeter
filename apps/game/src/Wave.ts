@@ -17,7 +17,13 @@ export class Wave extends BaseObject implements ILayout, IElapse {
     constructor(x: number, y: number, layer: Konva.Layer, cb: Function) {
         super(x, y, 0, 0, layer);
         navigator.mediaDevices
-            .getUserMedia({ audio: true })
+            .getUserMedia({
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                },
+            })
             .then((stream) => {
                 const audioContext = new AudioContext();
                 const analyser = audioContext.createAnalyser();
@@ -41,7 +47,7 @@ export class Wave extends BaseObject implements ILayout, IElapse {
                         values += array[i];
                     }
                     this.lastVolume = values / length;
-                    if (this.lastVolume > 28) {
+                    if (this.lastVolume > 38) {
                         cb();
                     }
                 };

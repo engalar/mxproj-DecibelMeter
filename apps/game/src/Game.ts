@@ -10,7 +10,6 @@ import { now } from "d3";
 
 const bgSound = new Audio("audio/bg.mp3");
 bgSound.autoplay = true;
-debugger;
 bgSound.volume = 0.01;
 bgSound.loop = true;
 

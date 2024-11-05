@@ -1,0 +1,24 @@
+.widget-boardwidget-clickable {
+    cursor: pointer;
+}
+
+.widget-boardwidget {
+    display: inline-block;
+}
+
+.widget-boardwidget.badge:empty {
+    display: initial;
+    /* Fix padding to stay round */
+    padding: 3px 10px;
+}
+
+.widget-boardwidget.label:empty {
+    display: initial;
+    /* Fix padding to stay square */
+    padding: .2em .8em .3em;
+}
+
+.widget-boardwidget.badge {
+    min-width: 18px;
+    min-height: 18px;
+}
