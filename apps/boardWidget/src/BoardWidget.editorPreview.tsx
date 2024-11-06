@@ -1,9 +1,7 @@
-import { ReactElement, createElement } from "react";
+import { createElement, ReactElement } from "react";
 
-import { parseInlineStyle } from "@mendix/pluggable-widgets-tools";
-
-import { BadgeSample, BadgeSampleProps } from "./components/BadgeSample";
 import { BoardWidgetPreviewProps } from "../typings/BoardWidgetProps";
+import { Board, BoardProps } from "./BoardWidget";
 
 function parentInline(node?: HTMLElement | null): void {
     // Temporary fix, the web modeler add a containing div, to render inline we need to change it.
@@ -12,22 +10,16 @@ function parentInline(node?: HTMLElement | null): void {
     }
 }
 
-function transformProps(props: BoardWidgetPreviewProps): BadgeSampleProps {
+function transformProps(_props: BoardWidgetPreviewProps): BoardProps {
     return {
-        type: props.boardwidgetType,
-        bootstrapStyle: props.bootstrapStyle,
-        className: props.className,
-        clickable: false,
-        style: parseInlineStyle(props.style),
-        defaultValue: props.boardwidgetValue ? props.boardwidgetValue : "",
-        value: props.valueAttribute
+        data: []
     };
 }
 
 export function preview(props: BoardWidgetPreviewProps): ReactElement {
     return (
         <div ref={parentInline}>
-            <BadgeSample {...transformProps(props)}></BadgeSample>
+            <Board {...transformProps(props)}></Board>
         </div>
     );
 }
