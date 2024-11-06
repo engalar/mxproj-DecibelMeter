@@ -1,9 +1,9 @@
 import { ReactElement, createElement, useMemo, CSSProperties } from "react";
 
 import { BoardWidgetContainerProps } from "../typings/BoardWidgetProps";
-// import { BadgeSample } from "./components/BadgeSample";
 import { ValueStatus } from "mendix";
 import "./ui/BoardWidget.css";
+import { Board } from "./Board";
 
 export interface Score {
     score: number;
@@ -13,15 +13,6 @@ export interface BoardProps {
     data: Score[];
     className?: string;
     style?: CSSProperties;
-}
-
-// react fn components use list of score as param
-export function Board(props: BoardProps): ReactElement {
-    return (
-        <div className={props.className} style={props.style}>
-            board itself
-        </div>
-    );
 }
 
 export function BoardWidget(props: BoardWidgetContainerProps): ReactElement {
@@ -34,24 +25,12 @@ export function BoardWidget(props: BoardWidgetContainerProps): ReactElement {
             }));
         }
         return [];
-    }, []);
+    }, [datasource.items, datasource.status, score, username]);
     // const onClickHandler = useCallback(() => {
     //     if (onClickAction && onClickAction.canExecute) {
     //         onClickAction.execute();
     //     }
     // }, [onClickAction]);
 
-    return (
-        <Board style={style} className={props.class} data={data} />
-        // <BadgeSample
-        //     type={boardwidgetType}
-        //     bootstrapStyle={bootstrapStyle}
-        //     className={props.class}
-        //     clickable={!!onClickAction}
-        //     defaultValue={boardwidgetValue ? boardwidgetValue : ""}
-        //     onClickAction={onClickHandler}
-        //     style={style}
-        //     value={valueAttribute ? valueAttribute.displayValue : ""}
-        // />
-    );
+    return <Board style={style} className={props.class} data={data} />;
 }

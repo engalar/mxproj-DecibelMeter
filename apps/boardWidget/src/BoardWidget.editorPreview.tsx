@@ -1,7 +1,8 @@
 import { createElement, ReactElement } from "react";
 
 import { BoardWidgetPreviewProps } from "../typings/BoardWidgetProps";
-import { Board, BoardProps } from "./BoardWidget";
+import { BoardProps } from "./BoardWidget";
+import { Board } from "./Board";
 
 function parentInline(node?: HTMLElement | null): void {
     // Temporary fix, the web modeler add a containing div, to render inline we need to change it.
